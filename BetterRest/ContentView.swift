@@ -15,7 +15,6 @@ struct ContentView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     @State private var showingAlert = false
-
     // static can be read whenever we want.
     // It makes the computed variable belong to the struct itself
     // rather than one instance.
@@ -27,57 +26,50 @@ struct ContentView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color.red
-                .ignoresSafeArea()
-
-            NavigationStack {
-                VStack {
-                    Form {
-                        Section("When do you want to wake up ?") {
-                            DatePicker(
-                                "Please enter a time",
-                                selection: $wakeUp,
-                                displayedComponents: .hourAndMinute
-                            )
-                            //                    .labelsHidden()
-                        }
-                        // hidden from the interface but still there for voiceover
-
-                        Section("Desire amount of sleep") {
-                            Stepper(
-                                "\(sleepAmount.formatted()) hours",
-                                value: $sleepAmount,
-                                in: 4...12,
-                                step: 0.25
-                            )
-                        }
-
-                        Section("Daily coffee intake") {
-                            Stepper(
-                                // Handles the pluralization of the word automatically
-                                "^[\(coffeeAmount) cup](inflect:true)",
-                                value: $coffeeAmount,
-                                in: 1...20
-                            )
-                        }
+        NavigationStack {
+            VStack {
+                Form {
+                    Section("When do you want to wake up ?") {
+                        DatePicker(
+                            "Please enter a time",
+                            selection: $wakeUp,
+                            displayedComponents: .hourAndMinute
+                        )
+                        //.labelsHidden()
                     }
-                    .navigationTitle("BetterRest")
-                    .toolbar {
-                        Button("Calculate", action: calculateBedTime)
-                    }
-                    .alert(alertTitle, isPresented: $showingAlert) {
-                        Button("Ok") {}
+                    // hidden from the interface but still there for voiceover
 
-                    } message: {
-                        Text(alertMessage)
+                    Section("Desire amount of sleep") {
+                        Stepper(
+                            "\(sleepAmount.formatted()) hours",
+                            value: $sleepAmount,
+                            in: 4...12,
+                            step: 0.25
+                        )
                     }
 
+                    Section("Daily coffee intake") {
+                        Stepper(  // Handles the pluralization of the word automatically
+                            "^[\(coffeeAmount) cup](inflect:true)",
+                            value: $coffeeAmount,
+                            in: 1...20
+                        )
+                    }
                 }
+            }
+            .navigationTitle("BetterRest")
+            .toolbar {
+                Button("Calculate", action: calculateBedTime)
+            }
+            .alert(alertTitle, isPresented: $showingAlert) {
+                Button("Ok") {}
 
+            } message: {
+                Text(alertMessage)
             }
         }
     }
+
     func calculateBedTime() {
         // CoreML can throw error, this is why we have a catch in order to "catch" the error.
         do {
@@ -104,10 +96,8 @@ struct ContentView: View {
                 coffee: Double(coffeeAmount)
             )
             let sleepTime = wakeUp - prediction.actualSleep
-
             alertTitle = "Your ideal bedtime is..."
             alertMessage = sleepTime.formatted(date: .omitted, time: .shortened)
-
         } catch {
             // Catch en eventual error
             alertTitle = "Error"
@@ -116,11 +106,8 @@ struct ContentView: View {
         }
         showingAlert.toggle()
     }
-
 }
 
 #Preview {
     ContentView()
 }
-
-// INTEGRATION BACKGROUNG LINEARGRADIENT COULEUR COFFEE BROWN/RED VIA STACK
